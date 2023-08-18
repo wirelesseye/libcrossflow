@@ -3,7 +3,7 @@ version: '3'
 tasks:
   build:
     cmds:
-      - rm -rf out/
+      - rm -rf out/*
       - go build -o out/crossflow
       - cd web && npm run build
       - mkdir -p out/web && cp -r web/dist out/web/

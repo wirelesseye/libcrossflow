@@ -1,16 +1,24 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
-}
-
 func main() {
-	http.HandleFunc("/", handler)
-	log.Fatal(http.ListenAndServe(":4331", nil))
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+
+	handler := http.FileServer(http.Dir("web/dist"))
+	http.Handle("/", handler)
+	go func() {
+		log.Fatal(http.ListenAndServe(":4331", nil))
+	}()
+	log.Print("Server Started on http://localhost:4331/")
+
+	<-done
+	log.Print("Server Stopped")
 }
