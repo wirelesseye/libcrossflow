@@ -1,7 +1,14 @@
 version: '3'
 
 tasks:
+  npm-install:
+    status:
+      - test -e web/node_modules
+    cmds:
+      - cd web && npm install
   build:
+    deps:
+      - npm-install
     cmds:
       - rm -rf out/*
       - go build -o out/crossflow
