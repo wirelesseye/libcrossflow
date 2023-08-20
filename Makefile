@@ -5,20 +5,20 @@ all: web/node_modules build_web build_exec out/res
 web/node_modules:
 	@cd web && npm install
 
-web/dist:
+web/dist: web/node_modules
 	cd web && npm run build
 
 out/crossflow:
 	go build -o out/crossflow
 
-out/res:
+out/res: web/dist
 	cp -r web/dist out/res/
 
 clean:
 	rm -rf out/*
 	rm -rf web/dist
 
-build_web: web/dist out/res
+build_web: out/res
  
 rebuild_web:
 	rm -rf web/dist
