@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 )
 
@@ -28,7 +29,14 @@ func main() {
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
-	handler := http.FileServer(http.Dir("web/dist"))
+	resDir, success := os.LookupEnv("RES_PATH")
+	if !success {
+		ex, _ := os.Executable()
+		exPath := filepath.Dir(ex)
+		resDir = filepath.Join(exPath, "res")
+	}
+
+	handler := http.FileServer(http.Dir(resDir))
 	http.HandleFunc("/api", listFiles)
 	http.Handle("/", handler)
 	go func() {
