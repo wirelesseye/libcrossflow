@@ -1,7 +1,7 @@
 package config
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"sync"
@@ -36,7 +36,7 @@ func GetConfig() *Config {
 		if configInstance == nil {
 			dirname, _ := os.UserConfigDir()
 			configFilePath := filepath.Join(dirname, "crossflow", "config.yaml")
-			fmt.Printf("Loading config from %s\n", configFilePath)
+			log.Printf("Loading config from %s\n", configFilePath)
 			dat, err := os.ReadFile(configFilePath)
 			if os.IsNotExist(err) {
 				c := defaultConfig()
@@ -55,12 +55,6 @@ func GetConfig() *Config {
 	return configInstance
 }
 
-func (config *Config) GetShareSpaces() []string {
-	shareSpaces := make([]string, len(config.internel.ShareSpaces))
-	i := 0
-	for key := range config.internel.ShareSpaces {
-		shareSpaces[i] = key
-		i++
-	}
-	return shareSpaces
+func (config *Config) GetRawData() *configInternel {
+	return &config.internel
 }
