@@ -1,7 +1,7 @@
 package main
 
 import (
-	"crossflow-cli/api"
+	"libcrossflow/api"
 	"log"
 	"net/http"
 	"os"

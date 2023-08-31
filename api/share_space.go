@@ -1,7 +1,7 @@
 package api
 
 import (
-	"crossflow-cli/config"
+	"libcrossflow/config"
 	"encoding/json"
 	"net/http"
 )
