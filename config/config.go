@@ -22,10 +22,12 @@ type configInternel struct {
 }
 
 func defaultConfig() Config {
+	homeDir, _ := os.UserHomeDir()
+
 	return Config{
 		internel: configInternel{
 			ShareSpaces: map[string]ShareSpace{"default": {
-				Files: map[string]string{"home": "~"},
+				Files: map[string]string{"home": homeDir},
 			}},
 		},
 	}
@@ -34,7 +36,7 @@ func defaultConfig() Config {
 var lock = &sync.Mutex{}
 var configInstance *Config
 
-func Initialize() {
+func Load() {
 	if configInstance == nil {
 		lock.Lock()
 		defer lock.Unlock()
@@ -61,7 +63,7 @@ func Initialize() {
 
 func GetConfig() *Config {
 	if configInstance == nil {
-		Initialize()
+		Load()
 	}
 	return configInstance
 }

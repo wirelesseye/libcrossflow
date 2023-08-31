@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"libcrossflow/controllers/sharespace"
 	"net/http"
 	"strings"
@@ -31,8 +30,16 @@ func handleFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	
+	shareSpaceName, path := split[0], split[1]
+	shareSpace, ok := sharespace.GetShareSpace(shareSpaceName)
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	fileNames := shareSpace.ListFiles(path)
+	res, _ := json.Marshal(fileNames)
 	w.WriteHeader(http.StatusOK)
-	shareSpace, path := split[0], split[1]
-	fmt.Fprintf(w, "ShareSpace: %v\n", shareSpace)
-	fmt.Fprintf(w, "Path: %v\n", path)
+	w.Write(res)
 }

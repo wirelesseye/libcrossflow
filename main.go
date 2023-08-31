@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	config.Initialize()
+	config.Load()
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
