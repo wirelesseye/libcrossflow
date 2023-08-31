@@ -1,9 +1,9 @@
 package api
 
 import (
-	"net/http"
+	"github.com/gorilla/mux"
 )
 
-func APIHandler(w http.ResponseWriter, r *http.Request) {
-	GetShareSpaces(w, r)
+func HandleAPI(r *mux.Router) {
+	r.HandleFunc("/api/share_spaces", ShareSpaces)
 }
