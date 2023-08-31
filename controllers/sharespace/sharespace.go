@@ -2,7 +2,7 @@ package sharespace
 
 import "libcrossflow/config"
 
-func GetShareSpaces() *map[string][]string {
+func GetShareSpaces() *map[string]config.ShareSpace {
 	config := config.GetConfig()
 	return &config.GetRawData().ShareSpaces
 }

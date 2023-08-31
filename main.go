@@ -1,6 +1,7 @@
 package main
 
 import (
+	"libcrossflow/config"
 	"log"
 	"net/http"
 	"os"
@@ -9,11 +10,11 @@ import (
 )
 
 func main() {
+	config.Initialize()
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
-	router := GetRouter()
-	http.Handle("/", router)
+	http.Handle("/", GetRouter())
 
 	go func() {
 		log.Fatal(http.ListenAndServe(":4331", nil))

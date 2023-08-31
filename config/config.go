@@ -13,14 +13,20 @@ type Config struct {
 	internel configInternel
 }
 
+type ShareSpace struct {
+	Files map[string]string
+}
+
 type configInternel struct {
-	ShareSpaces map[string][]string
+	ShareSpaces map[string]ShareSpace
 }
 
 func defaultConfig() Config {
 	return Config{
 		internel: configInternel{
-			ShareSpaces: map[string][]string{"home": {"~"}},
+			ShareSpaces: map[string]ShareSpace{"default": {
+				Files: map[string]string{"home": "~"},
+			}},
 		},
 	}
 }
@@ -28,7 +34,7 @@ func defaultConfig() Config {
 var lock = &sync.Mutex{}
 var configInstance *Config
 
-func GetConfig() *Config {
+func Initialize() {
 	if configInstance == nil {
 		lock.Lock()
 		defer lock.Unlock()
@@ -51,7 +57,12 @@ func GetConfig() *Config {
 			}
 		}
 	}
+}
 
+func GetConfig() *Config {
+	if configInstance == nil {
+		Initialize()
+	}
 	return configInstance
 }
 

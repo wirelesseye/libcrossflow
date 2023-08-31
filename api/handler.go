@@ -11,7 +11,7 @@ import (
 )
 
 func HandleAPI(r *mux.Router) {
-	r.HandleFunc("/api/share_spaces", handleShareSpaces)
+	r.HandleFunc("/api/sharespaces", handleShareSpaces)
 	r.PathPrefix("/api/files/").HandlerFunc(handleFiles)
 }
 
