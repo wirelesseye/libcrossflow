@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"libcrossflow/controllers/sharespace"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -23,11 +24,11 @@ func handleShareSpaces(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleFiles(w http.ResponseWriter, r *http.Request) {
-	url, _ := strings.CutPrefix(r.URL.String(), "/api/files/")
+	relUrl, _ := strings.CutPrefix(r.URL.String(), "/api/files/")
 
 	var shareSpaceName, path string
 
-	split := strings.SplitN(url, "/", 2)
+	split := strings.SplitN(relUrl, "/", 2)
 	if len(split) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("400 bad request"))
@@ -38,6 +39,14 @@ func handleFiles(w http.ResponseWriter, r *http.Request) {
 	} else {
 		shareSpaceName, path = split[0], split[1]
 	}
+
+	unescapedPath, err := url.QueryUnescape(path)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("400 bad request"))
+		return
+	}
+	path = unescapedPath
 
 	shareSpace, ok := sharespace.GetShareSpace(shareSpaceName)
 	if !ok {
@@ -58,9 +67,9 @@ func handleFiles(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleDownload(w http.ResponseWriter, r *http.Request) {
-	url, _ := strings.CutPrefix(r.URL.String(), "/api/download/")
+	relUrl, _ := strings.CutPrefix(r.URL.String(), "/api/download/")
 
-	split := strings.SplitN(url, "/", 2)
+	split := strings.SplitN(relUrl, "/", 2)
 	if len(split) < 2 {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("400 bad request"))
@@ -74,6 +83,14 @@ func handleDownload(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("400 bad request"))
 		return
 	}
+
+	unescapedPath, err := url.QueryUnescape(path)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("400 bad request"))
+		return
+	}
+	path = unescapedPath
 
 	fileInfo, err := shareSpace.GetFileInfo(path)
 	if fileInfo.Type == "dir" || err != nil {
