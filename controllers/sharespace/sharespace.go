@@ -69,20 +69,45 @@ func (shareSpace ShareSpace) GetFileInfo(path string) (FileInfo, error) {
 		return FileInfo{}, err
 	}
 
+	var ty string
 	if fi.IsDir() {
-		return FileInfo{
-			Type: "dir",
-			Name: fi.Name(),
-		}, nil
+		ty = "dir"
 	} else {
-		return FileInfo{
-			Type: "file",
-			Name: fi.Name(),
-		}, nil
+		ty = "file"
 	}
+
+	return FileInfo{
+		Type: ty,
+		Name: fi.Name(),
+	}, nil
 }
 
 func (shareSpace ShareSpace) ListFiles(path string) ([]FileInfo, error) {
+	if path == "" {
+		files := []FileInfo{}
+
+		for name, path := range shareSpace.Files {
+			fi, err := os.Stat(path)
+			if err != nil {
+				return []FileInfo{}, err
+			}
+
+			var ty string
+			if fi.IsDir() {
+				ty = "dir"
+			} else {
+				ty = "file"
+			}
+
+			files = append(files, FileInfo{
+				Type: ty,
+				Name: name,
+			})
+		}
+
+		return files, nil
+	}
+
 	realPath := shareSpace.GetRealPath(path)
 
 	files := []FileInfo{}
@@ -92,17 +117,17 @@ func (shareSpace ShareSpace) ListFiles(path string) ([]FileInfo, error) {
 	}
 
 	for _, e := range entries {
+		var ty string
 		if e.IsDir() {
-			files = append(files, FileInfo{
-				Type: "dir",
-				Name: e.Name(),
-			})
+			ty = "dir"
 		} else {
-			files = append(files, FileInfo{
-				Type: "file",
-				Name: e.Name(),
-			})
+			ty = "file"
 		}
+
+		files = append(files, FileInfo{
+			Type: ty,
+			Name: e.Name(),
+		})
 	}
 
 	return files, nil
