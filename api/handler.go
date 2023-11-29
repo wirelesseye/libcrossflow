@@ -27,14 +27,15 @@ func handleFiles(w http.ResponseWriter, r *http.Request) {
 	split := strings.SplitN(url, "/", 2)
 	if len(split) < 2 {
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("400 bad request"))
 		return
 	}
-
 	
 	shareSpaceName, path := split[0], split[1]
 	shareSpace, ok := sharespace.GetShareSpace(shareSpaceName)
 	if !ok {
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("400 bad request"))
 		return
 	}
 
