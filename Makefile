@@ -1,6 +1,6 @@
-.PHONY: all build clean run build_web rebuild_web build_exec rebuild_exec rebuild_all
+.PHONY: all build clean run build_web rebuild_web build_bin rebuild_bin rebuild_all
 
-all: web/node_modules build_web build_exec out/res
+all: build_web build_bin out/res
 
 web/node_modules:
 	@cd web && npm install
@@ -12,6 +12,7 @@ out/crossflow:
 	go build -o out/crossflow
 
 out/res: web/dist
+	mkdir -p out/res
 	cp -r web/dist out/res/
 
 clean:
@@ -25,9 +26,9 @@ rebuild_web:
 	rm -rf out/res
 	@$(MAKE) build_web
 
-build_exec: out/crossflow
+build_bin: out/crossflow
 
-rebuild_exec:
+rebuild_bin:
 	rm out/crossflow
 	@$(MAKE) build_exec
 
