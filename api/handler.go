@@ -25,14 +25,20 @@ func handleShareSpaces(w http.ResponseWriter, r *http.Request) {
 func handleFiles(w http.ResponseWriter, r *http.Request) {
 	url, _ := strings.CutPrefix(r.URL.String(), "/api/files/")
 
+	var shareSpaceName, path string
+
 	split := strings.SplitN(url, "/", 2)
-	if len(split) < 2 {
+	if len(split) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("400 bad request"))
 		return
+	} else if len(split) == 1 {
+		shareSpaceName = split[0]
+		path = ""
+	} else {
+		shareSpaceName, path = split[0], split[1]
 	}
 
-	shareSpaceName, path := split[0], split[1]
 	shareSpace, ok := sharespace.GetShareSpace(shareSpaceName)
 	if !ok {
 		w.WriteHeader(http.StatusBadRequest)
