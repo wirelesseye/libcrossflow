@@ -1,7 +1,6 @@
 package sharespace
 
 import (
-	"errors"
 	"libcrossflow/config"
 	"os"
 	"path/filepath"
@@ -10,9 +9,9 @@ import (
 
 type ShareSpace config.ShareSpace
 
-type PathResult struct {
+type FileInfo struct {
 	Type string
-	Files []string `json:"files,omitempty"`
+	Name string
 }
 
 func GetShareSpace(name string) (ShareSpace, bool) {
@@ -46,7 +45,7 @@ func GetShareSpaceNames() []string {
 	return shareSpaceNames
 }
 
-func (shareSpace ShareSpace) GetPath(path string) (PathResult, error) {
+func (shareSpace ShareSpace) GetRealPath(path string) string {
 	split := strings.SplitN(path, "/", 2)
 
 	var realPath string
@@ -59,28 +58,52 @@ func (shareSpace ShareSpace) GetPath(path string) (PathResult, error) {
 		realPath = filepath.Join(rootPath, relPath)
 	}
 
+	return realPath
+}
+
+func (shareSpace ShareSpace) GetFileInfo(path string) (FileInfo, error) {
+	realPath := shareSpace.GetRealPath(path)
+
 	fi, err := os.Stat(realPath)
 	if err != nil {
-		return PathResult{}, err
+		return FileInfo{}, err
 	}
 
-	switch mode := fi.Mode(); {
-		case mode.IsDir():
-			fileNames := []string{}
-			entries, _ := os.ReadDir(realPath)
-			for _, e := range entries {
-				fileNames = append(fileNames, e.Name())
-			}
+	if fi.IsDir() {
+		return FileInfo{
+			Type: "dir",
+			Name: fi.Name(),
+		}, nil
+	} else {
+		return FileInfo{
+			Type: "file",
+			Name: fi.Name(),
+		}, nil
+	}
+}
 
-			return PathResult {
+func (shareSpace ShareSpace) ListFiles(path string) ([]FileInfo, error) {
+	realPath := shareSpace.GetRealPath(path)
+
+	files := []FileInfo{}
+	entries, err := os.ReadDir(realPath)
+	if err != nil {
+		return []FileInfo{}, err
+	}
+
+	for _, e := range entries {
+		if e.IsDir() {
+			files = append(files, FileInfo{
 				Type: "dir",
-				Files: fileNames,
-			}, nil
-		case mode.IsRegular():
-			return PathResult{
+				Name: e.Name(),
+			})
+		} else {
+			files = append(files, FileInfo{
 				Type: "file",
-			}, nil
-		default:
-			return PathResult{}, errors.New("unexpected file mode")
+				Name: e.Name(),
+			})
+		}
 	}
+
+	return files, nil
 }
