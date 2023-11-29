@@ -1,6 +1,7 @@
 package sharespace
 
 import (
+	"errors"
 	"libcrossflow/config"
 	"os"
 	"path/filepath"
@@ -8,6 +9,11 @@ import (
 )
 
 type ShareSpace config.ShareSpace
+
+type PathResult struct {
+	Type string
+	Files []string `json:"files,omitempty"`
+}
 
 func GetShareSpace(name string) (ShareSpace, bool) {
 	shareSpaces := GetShareSpaces()
@@ -40,7 +46,7 @@ func GetShareSpaceNames() []string {
 	return shareSpaceNames
 }
 
-func (shareSpace ShareSpace) ListFiles(path string) []string {
+func (shareSpace ShareSpace) GetPath(path string) (PathResult, error) {
 	split := strings.SplitN(path, "/", 2)
 
 	var realPath string
@@ -53,10 +59,28 @@ func (shareSpace ShareSpace) ListFiles(path string) []string {
 		realPath = filepath.Join(rootPath, relPath)
 	}
 
-	fileNames := []string{}
-	entries, _ := os.ReadDir(realPath)
-	for _, e := range entries {
-		fileNames = append(fileNames, e.Name())
+	fi, err := os.Stat(realPath)
+	if err != nil {
+		return PathResult{}, err
 	}
-	return fileNames
+
+	switch mode := fi.Mode(); {
+		case mode.IsDir():
+			fileNames := []string{}
+			entries, _ := os.ReadDir(realPath)
+			for _, e := range entries {
+				fileNames = append(fileNames, e.Name())
+			}
+
+			return PathResult {
+				Type: "dir",
+				Files: fileNames,
+			}, nil
+		case mode.IsRegular():
+			return PathResult{
+				Type: "file",
+			}, nil
+		default:
+			return PathResult{}, errors.New("unexpected file mode")
+	}
 }

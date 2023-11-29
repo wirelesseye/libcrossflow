@@ -39,8 +39,13 @@ func handleFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fileNames := shareSpace.ListFiles(path)
-	res, _ := json.Marshal(fileNames)
-	w.WriteHeader(http.StatusOK)
-	w.Write(res)
+	fileNames, err := shareSpace.GetPath(path)
+	if err == nil {
+		res, _ := json.Marshal(fileNames)
+		w.WriteHeader(http.StatusOK)
+		w.Write(res)
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("400 bad request"))
+	}
 }
