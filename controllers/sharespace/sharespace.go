@@ -10,8 +10,8 @@ import (
 type ShareSpace config.ShareSpace
 
 type FileInfo struct {
-	Type string
-	Name string
+	Type string `json:"type"`
+	Name string `json:"name"`
 }
 
 func GetShareSpace(name string) (ShareSpace, bool) {
