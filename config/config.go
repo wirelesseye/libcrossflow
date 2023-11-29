@@ -26,7 +26,7 @@ func defaultConfig() Config {
 
 	return Config{
 		internel: configInternel{
-			ShareSpaces: map[string]ShareSpace{"default": {
+			ShareSpaces: map[string]ShareSpace{"Default": {
 				Files: map[string]string{"home": homeDir},
 			}},
 		},
@@ -36,7 +36,7 @@ func defaultConfig() Config {
 var lock = &sync.Mutex{}
 var configInstance *Config
 
-func Load() {
+func LoadConfig() {
 	if configInstance == nil {
 		lock.Lock()
 		defer lock.Unlock()
@@ -63,7 +63,7 @@ func Load() {
 
 func GetConfig() *Config {
 	if configInstance == nil {
-		Load()
+		LoadConfig()
 	}
 	return configInstance
 }
