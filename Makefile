@@ -37,4 +37,4 @@ rebuild_all:
 	@$(MAKE) all
 
 run: web/dist
-	@RES_PATH=web/dist go run .
+	@APP_ENV=dev go run .

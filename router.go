@@ -6,12 +6,15 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
-func GetRouter() *mux.Router {
-	resDir, success := os.LookupEnv("RES_PATH")
-	if !success {
+func GetRouter() http.Handler {
+	var resDir string
+	if os.Getenv("APP_ENV") == "dev" {
+		resDir = "web/dist"
+	} else {
 		ex, _ := os.Executable()
 		exPath := filepath.Dir(ex)
 		resDir = filepath.Join(exPath, "res")
@@ -21,5 +24,12 @@ func GetRouter() *mux.Router {
 	api.HandleAPI(r)
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir(resDir)))
 
-	return r
+	if os.Getenv("APP_ENV") == "dev" {
+		headersOk := handlers.AllowedHeaders([]string{"X-Requested-With"})
+		originsOk := handlers.AllowedOrigins([]string{"*"})
+		methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+		return handlers.CORS(originsOk, headersOk, methodsOk)(r)
+	} else {
+		return r
+	}
 }
