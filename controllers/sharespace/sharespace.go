@@ -4,6 +4,7 @@ import (
 	"libcrossflow/config"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -28,7 +29,6 @@ func GetShareSpaces() map[string]ShareSpace {
 	for name, shareSpace := range configShareSpaces {
 		shareSpaces[name] = ShareSpace(shareSpace)
 	}
-
 	return shareSpaces
 }
 
@@ -41,7 +41,7 @@ func GetShareSpaceNames() []string {
 		shareSpaceNames[i] = key
 		i++
 	}
-
+	slices.Sort(shareSpaceNames)
 	return shareSpaceNames
 }
 
