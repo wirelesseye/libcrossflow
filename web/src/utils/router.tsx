@@ -20,7 +20,7 @@ interface RouterState {
 }
 
 const useRouterStore = zustand.create<RouterState>((set) => ({
-    pathname: window.location.pathname,
+    pathname: decodeURI(window.location.pathname),
     setPathname: (pathname: string) => set({ pathname }),
 }));
 
