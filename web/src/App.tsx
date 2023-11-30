@@ -20,7 +20,7 @@ const routes: Route[] = [
     {
         pathname: /^\/files\/(?<filepath>.+)$/,
         element: FilesPage
-    }
+    },
 ];
 
 export default function App() {

@@ -8,7 +8,10 @@ import (
 	"strings"
 )
 
-type ShareSpace config.ShareSpace
+type ShareSpace struct {
+	Name   string
+	Config config.ShareSpaceConfig
+}
 
 type FileInfo struct {
 	Type string `json:"type"`
@@ -16,31 +19,27 @@ type FileInfo struct {
 }
 
 func GetShareSpace(name string) (ShareSpace, bool) {
-	shareSpaces := GetShareSpaces()
-	val, ok := shareSpaces[name]
-	return val, ok
-}
-
-func GetShareSpaces() map[string]ShareSpace {
-	config := config.GetConfig()
-	shareSpaces := map[string]ShareSpace{}
-
-	configShareSpaces := config.GetRawData().ShareSpaces
-	for name, shareSpace := range configShareSpaces {
-		shareSpaces[name] = ShareSpace(shareSpace)
+	shareSpaceConfig, ok := config.GetConfig().GetRawData().ShareSpaces[name]
+	if ok {
+		return ShareSpace{
+			Name:   name,
+			Config: shareSpaceConfig,
+		}, true
+	} else {
+		return ShareSpace{}, false
 	}
-	return shareSpaces
 }
 
 func GetShareSpaceNames() []string {
-	shareSpaces := GetShareSpaces()
+	shareSpaceConfigs := config.GetConfig().GetRawData().ShareSpaces
+	shareSpaceNames := make([]string, len(shareSpaceConfigs))
 
-	shareSpaceNames := make([]string, len(shareSpaces))
 	i := 0
-	for key := range shareSpaces {
+	for key := range shareSpaceConfigs {
 		shareSpaceNames[i] = key
 		i++
 	}
+
 	slices.Sort(shareSpaceNames)
 	return shareSpaceNames
 }
@@ -51,10 +50,10 @@ func (shareSpace ShareSpace) GetRealPath(path string) string {
 	var realPath string
 	if len(split) < 2 {
 		name := split[0]
-		realPath = shareSpace.Files[name]
+		realPath = shareSpace.Config.Files[name]
 	} else {
 		name, relPath := split[0], split[1]
-		rootPath := shareSpace.Files[name]
+		rootPath := shareSpace.Config.Files[name]
 		realPath = filepath.Join(rootPath, relPath)
 	}
 
@@ -62,6 +61,13 @@ func (shareSpace ShareSpace) GetRealPath(path string) string {
 }
 
 func (shareSpace ShareSpace) GetFileInfo(path string) (FileInfo, error) {
+	if path == "" {
+		return FileInfo{
+			Type: "sharespace",
+			Name: shareSpace.Name,
+		}, nil
+	}
+
 	realPath := shareSpace.GetRealPath(path)
 
 	fi, err := os.Stat(realPath)
@@ -86,7 +92,7 @@ func (shareSpace ShareSpace) ListFiles(path string) ([]FileInfo, error) {
 	if path == "" {
 		files := []FileInfo{}
 
-		for name, path := range shareSpace.Files {
+		for name, path := range shareSpace.Config.Files {
 			fi, err := os.Stat(path)
 			if err != nil {
 				return []FileInfo{}, err

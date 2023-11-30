@@ -13,12 +13,12 @@ type Config struct {
 	internel configInternel
 }
 
-type ShareSpace struct {
+type ShareSpaceConfig struct {
 	Files map[string]string
 }
 
 type configInternel struct {
-	ShareSpaces map[string]ShareSpace
+	ShareSpaces map[string]ShareSpaceConfig
 }
 
 func defaultConfig() Config {
@@ -26,7 +26,7 @@ func defaultConfig() Config {
 
 	return Config{
 		internel: configInternel{
-			ShareSpaces: map[string]ShareSpace{"Default": {
+			ShareSpaces: map[string]ShareSpaceConfig{"Default": {
 				Files: map[string]string{"home": homeDir},
 			}},
 		},
