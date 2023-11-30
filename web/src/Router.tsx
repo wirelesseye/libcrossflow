@@ -1,8 +1,9 @@
 import { HTMLProps, MouseEventHandler, useCallback, useEffect, useMemo } from "react";
+import * as zustand from "zustand";
 import FilesPage from "./pages/Files";
 import HomePage from "./pages/Home";
 import NotFoundPage from "./pages/NotFound";
-import * as zustand from "zustand";
+import SharespacesPage from "./pages/Sharespaces";
 
 interface RouterState {
     pathname: string;
@@ -19,6 +20,26 @@ export const usePathname = () => {
     return pathname;
 }
 
+export const usePush = () => {
+    const setPathname = useRouterStore(s => s.setPathname);
+    
+    const f = useCallback((url: string) => {
+        setPathname(url);
+        history.pushState({}, "", url);
+    }, []);
+
+    return f;
+}
+
+export const useRedirect = (url: string) => {
+    const setPathname = useRouterStore(s => s.setPathname);
+
+    useEffect(() => {
+        setPathname(url);
+        history.replaceState({}, "", url);
+    }, []);
+}
+
 export function Router() {
     const {pathname, setPathname} = useRouterStore();
 
@@ -31,7 +52,9 @@ export function Router() {
     const Page = useMemo(() => {
         if (pathname === "/") {
             return HomePage;
-        } else if (pathname.startsWith("/files")) {
+        } else if (pathname === "/files" || pathname === "/files/") {
+            return SharespacesPage;
+        } else if (pathname.startsWith("/files/")) {
             return FilesPage;
         } else {
             return NotFoundPage;
@@ -46,14 +69,13 @@ export interface LinkProps extends HTMLProps<HTMLAnchorElement> {
 
 export function Link(props: LinkProps) {
     const { onClick, href, ...other } = props;
-    const setPathname = useRouterStore((s) => s.setPathname);
+    const push = usePush();
 
     const handleClick = useCallback<MouseEventHandler<HTMLAnchorElement>>(
         (e) => {
             e.preventDefault();
             if (href) {
-                setPathname(href);
-                history.pushState({}, "", href);
+                push(href);
             }
             if (onClick) onClick(e);
         },

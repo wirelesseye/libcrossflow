@@ -37,13 +37,18 @@ const styles = {
         border-radius: 8px;
         user-select: none;
         transition: background-color 100ms, box-shadow 100ms;
+        border: 1px solid transparent;
+        -webkit-tap-highlight-color: transparent;
 
         :nth-child(even) {
             background-color: rgba(0, 0, 0, 0.05);
         }
 
-        :hover {
-            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+        @media(hover: hover) and (pointer: fine) {
+            :hover {
+                box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+                border-color: rgba(0, 0, 0, 0.1);
+            }
         }
 
         :active {
