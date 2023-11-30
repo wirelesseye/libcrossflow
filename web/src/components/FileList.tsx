@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { css } from "@emotion/css";
-import { Link } from "../Router";
+import { Link } from "../utils/router";
 
 export interface FileListProps {
     children?: ReactNode;

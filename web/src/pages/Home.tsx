@@ -1,4 +1,4 @@
-import { useRedirect } from "../Router";
+import { useRedirect } from "../utils/router";
 
 export default function HomePage() {
     useRedirect("/files");

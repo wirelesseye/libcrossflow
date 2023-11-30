@@ -1,17 +1,15 @@
-import { useMemo } from "react";
-import { usePathname } from "../Router";
 import { useFetchJSON } from "../utils/hooks";
 import { FileInfo } from "../datatypes";
 import { FileList, FileListItem } from "../components/FileList";
 import { ArrowUpFromLineIcon, FileIcon, FolderIcon } from "lucide-react";
 import path from "../utils/path";
 
-export default function FilesPage() {
-    const pathname = usePathname();
-    const filepath = useMemo(
-        () => pathname.replace(/^\/files\//, ""),
-        [pathname],
-    );
+interface FilesPageProps {
+    params: { filepath: string };
+}
+
+export default function FilesPage({ params }: FilesPageProps) {
+    const { filepath } = params;
     const files = useFetchJSON<FileInfo[]>(`/api/files/${filepath}`);
 
     return (
