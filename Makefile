@@ -12,8 +12,8 @@ out/crossflow:
 	go build -o out/crossflow
 
 out/res: web/dist
-	mkdir -p out/res
-	cp -r web/dist out/res/
+	mkdir -p out
+	cp -r web/dist out/res
 
 clean:
 	rm -rf out/*
