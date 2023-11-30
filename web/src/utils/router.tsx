@@ -59,7 +59,7 @@ export function Router({ routes, NotFoundElement }: RouterProps) {
 
     useEffect(() => {
         window.addEventListener("popstate", () => {
-            setPathname(window.location.pathname);
+            setPathname(decodeURI(window.location.pathname));
         });
     }, []);
 

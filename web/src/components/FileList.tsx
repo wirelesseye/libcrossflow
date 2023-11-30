@@ -44,9 +44,13 @@ const styles = {
             background-color: rgba(0, 0, 0, 0.05);
         }
 
+        @media (max-width: 1280px) {
+            border-radius: 0;
+        }
+
         @media(hover: hover) and (pointer: fine) {
             :hover {
-                box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
                 border-color: rgba(0, 0, 0, 0.1);
             }
         }
