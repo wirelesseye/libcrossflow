@@ -1,14 +1,17 @@
 import { css } from "@emotion/css";
 import { FileIcon } from "lucide-react";
 import { FileInfo } from "../datatypes";
-import Button from "./Button";
+import { Button } from "./Button";
 
 interface FilePreviewProps {
     filePath: string;
     fileInfo: FileInfo;
 }
 
-export default function FilePreview({ filePath: filepath, fileInfo: fileinfo }: FilePreviewProps) {
+export default function FilePreview({
+    filePath: filepath,
+    fileInfo: fileinfo,
+}: FilePreviewProps) {
     return (
         <div className={styles.root}>
             {fileinfo ? (
@@ -22,7 +25,11 @@ export default function FilePreview({ filePath: filepath, fileInfo: fileinfo }: 
                     </div>
                     <div className={styles.info}>
                         <div className={styles.filename}>{fileinfo.name}</div>
-                        <a className={styles.download} href={`/api/download/${filepath}`} download="">
+                        <a
+                            className={styles.download}
+                            href={`/api/download/${filepath}`}
+                            download=""
+                        >
                             <Button>Download</Button>
                         </a>
                     </div>
@@ -73,5 +80,5 @@ const styles = {
     `,
     download: css`
         margin-top: auto;
-    `
+    `,
 };

@@ -4,9 +4,10 @@ import FilePreview from "../components/FilePreview";
 import FolderView from "../components/FolderView";
 import { ArrowUpFromLineIcon } from "lucide-react";
 import { css } from "@emotion/css";
-import Button from "../components/Button";
-import { Link } from "../utils/router";
+import { Button } from "../components/Button";
 import path from "../utils/path";
+import { Link } from "../components/Link";
+import { Fragment } from "react";
 
 interface FilesPageProps {
     params: { filepath: string };
@@ -19,7 +20,7 @@ export default function FilesPage({ params }: FilesPageProps) {
     return fileInfo ? (
         <div>
             <div className={styles.header}>
-                <Link href={path.join("/files", path.parent(filepath))}>
+                <Link tabIndex={-1} href={path.join("/files", path.parent(filepath))}>
                     <Button>
                         <ArrowUpFromLineIcon size={18} />
                     </Button>
@@ -27,9 +28,10 @@ export default function FilesPage({ params }: FilesPageProps) {
 
                 <div className={styles.path}>
                     {filepath.split("/").map((name, i) => (
-                        <>
+                        <Fragment key={i}>
                             {i ? <div className={styles.sep}>/</div> : null}
                             <Link
+                                tabIndex={-1}
                                 href={path.join(
                                     "/files",
                                     ...filepath.split("/").slice(0, i + 1),
@@ -44,7 +46,7 @@ export default function FilesPage({ params }: FilesPageProps) {
                                     {name}
                                 </Button>
                             </Link>
-                        </>
+                        </Fragment>
                     ))}
                 </div>
             </div>

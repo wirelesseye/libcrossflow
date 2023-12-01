@@ -6,7 +6,7 @@ export interface ButtonProps extends HTMLProps<HTMLButtonElement> {
     variant?: "normal" | "ghost";
 }
 
-export default function Button(props: ButtonProps) {
+export function Button(props: ButtonProps) {
     const { className, variant, ...other } = props;
 
     return (

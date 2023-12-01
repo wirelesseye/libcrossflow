@@ -1,11 +1,4 @@
-import {
-    HTMLProps,
-    MouseEventHandler,
-    createElement,
-    useCallback,
-    useEffect,
-    useMemo,
-} from "react";
+import { createElement, useCallback, useEffect, useMemo } from "react";
 import * as zustand from "zustand";
 
 export interface Route {
@@ -33,8 +26,10 @@ export const usePush = () => {
     const setPathname = useRouterStore((s) => s.setPathname);
 
     const f = useCallback((url: string) => {
-        setPathname(url);
-        history.pushState({}, "", url);
+        setTimeout(() => {
+            setPathname(url);
+            history.pushState({}, "", url);
+        }, 100);
     }, []);
 
     return f;
@@ -68,7 +63,9 @@ export function Router({ routes, NotFoundElement }: RouterProps) {
             if (route.pathname instanceof RegExp) {
                 const match = route.pathname.exec(pathname);
                 if (match) {
-                    return createElement(route.element, { params: match.groups })
+                    return createElement(route.element, {
+                        params: match.groups,
+                    });
                 }
             } else {
                 if (route.pathname === pathname) {
@@ -81,24 +78,4 @@ export function Router({ routes, NotFoundElement }: RouterProps) {
     }, [pathname]);
 
     return Page;
-}
-
-export interface LinkProps extends HTMLProps<HTMLAnchorElement> {}
-
-export function Link(props: LinkProps) {
-    const { onClick, href, ...other } = props;
-    const push = usePush();
-
-    const handleClick = useCallback<MouseEventHandler<HTMLAnchorElement>>(
-        (e) => {
-            e.preventDefault();
-            if (href) {
-                push(href);
-            }
-            if (onClick) onClick(e);
-        },
-        [href],
-    );
-
-    return <a onClick={handleClick} href={href} {...other} />;
 }
