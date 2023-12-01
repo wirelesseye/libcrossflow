@@ -53,6 +53,7 @@ const styles = {
         flex-grow: 1;
         max-width: 800px;
         align-items: center;
+        overflow: auto;
 
         @media (max-width: 600px) {
             flex-direction: column;
@@ -62,6 +63,7 @@ const styles = {
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-shrink: 0;
         width: 256px;
         height: 256px;
         border: 1px solid rgba(0, 0, 0, 0.1);
