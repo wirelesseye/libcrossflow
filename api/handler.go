@@ -12,13 +12,13 @@ import (
 )
 
 func HandleAPI(r *mux.Router) {
-	r.HandleFunc("/api/sharespaces", handleShareSpaces)
-	r.PathPrefix("/api/files/").HandlerFunc(handleFiles)
-	r.PathPrefix("/api/file/").HandlerFunc(handleFile)
-	r.PathPrefix("/api/download/").HandlerFunc(handleDownload)
+	r.HandleFunc("/api/file/sharespaces", handleFileShareSpaces)
+	r.PathPrefix("/api/file/list/").HandlerFunc(handleFileList)
+	r.PathPrefix("/api/file/stat/").HandlerFunc(handleFileStat)
+	r.PathPrefix("/api/file/download/").HandlerFunc(handleFileDownload)
 }
 
-func handleShareSpaces(w http.ResponseWriter, r *http.Request) {
+func handleFileShareSpaces(w http.ResponseWriter, r *http.Request) {
 	shareSpaceNames := sharespace.GetShareSpaceNames()
 	res, _ := json.Marshal(shareSpaceNames)
 	w.WriteHeader(http.StatusOK)
@@ -46,8 +46,8 @@ func splitPath(path string) (string, string, error) {
 	return shareSpaceName, unescapedPath, nil
 }
 
-func handleFiles(w http.ResponseWriter, r *http.Request) {
-	path, _ := strings.CutPrefix(r.URL.String(), "/api/files/")
+func handleFileList(w http.ResponseWriter, r *http.Request) {
+	path, _ := strings.CutPrefix(r.URL.String(), "/api/file/list/")
 	shareSpaceName, relPath, err := splitPath(path)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -73,8 +73,8 @@ func handleFiles(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleDownload(w http.ResponseWriter, r *http.Request) {
-	path, _ := strings.CutPrefix(r.URL.String(), "/api/download/")
+func handleFileDownload(w http.ResponseWriter, r *http.Request) {
+	path, _ := strings.CutPrefix(r.URL.String(), "/api/file/download/")
 	shareSpaceName, relPath, err := splitPath(path)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -97,7 +97,7 @@ func handleDownload(w http.ResponseWriter, r *http.Request) {
 	}
 	path = unescapedPath
 
-	fileInfo, err := shareSpace.GetFileInfo(relPath)
+	fileInfo, err := shareSpace.GetFileStat(relPath)
 	if fileInfo.Type == "dir" || err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("400 bad request"))
@@ -108,8 +108,8 @@ func handleDownload(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, realPath)
 }
 
-func handleFile(w http.ResponseWriter, r *http.Request) {
-	path, _ := strings.CutPrefix(r.URL.String(), "/api/file/")
+func handleFileStat(w http.ResponseWriter, r *http.Request) {
+	path, _ := strings.CutPrefix(r.URL.String(), "/api/file/stat/")
 	shareSpaceName, relPath, err := splitPath(path)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -132,7 +132,7 @@ func handleFile(w http.ResponseWriter, r *http.Request) {
 	}
 	path = unescapedPath
 
-	fileInfo, err := shareSpace.GetFileInfo(relPath)
+	fileInfo, err := shareSpace.GetFileStat(relPath)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("400 bad request"))

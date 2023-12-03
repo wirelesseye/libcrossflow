@@ -1,5 +1,5 @@
 import { FileIcon, FolderIcon } from "lucide-react";
-import { FileInfo } from "../datatypes";
+import { FileStat } from "../datatypes";
 import { useFetchJSON } from "../utils/hooks";
 import { FileList, FileListItem } from "./FileList";
 import path from "../utils/path";
@@ -9,7 +9,7 @@ export interface FolderViewProps {
 }
 
 export default function FolderView({ filePath }: FolderViewProps) {
-    const files = useFetchJSON<FileInfo[]>(`/api/files/${filePath}`);
+    const files = useFetchJSON<FileStat[]>(`/api/file/list/${filePath}`);
 
     return (
         <FileList>

@@ -13,7 +13,7 @@ type ShareSpace struct {
 	Config config.ShareSpaceConfig
 }
 
-type FileInfo struct {
+type FileStat struct {
 	Type string `json:"type"`
 	Name string `json:"name"`
 }
@@ -60,9 +60,9 @@ func (shareSpace ShareSpace) GetRealPath(path string) string {
 	return realPath
 }
 
-func (shareSpace ShareSpace) GetFileInfo(path string) (FileInfo, error) {
+func (shareSpace ShareSpace) GetFileStat(path string) (FileStat, error) {
 	if path == "" {
-		return FileInfo{
+		return FileStat{
 			Type: "sharespace",
 			Name: shareSpace.Name,
 		}, nil
@@ -72,7 +72,7 @@ func (shareSpace ShareSpace) GetFileInfo(path string) (FileInfo, error) {
 
 	fi, err := os.Stat(realPath)
 	if err != nil {
-		return FileInfo{}, err
+		return FileStat{}, err
 	}
 
 	var ty string
@@ -82,20 +82,20 @@ func (shareSpace ShareSpace) GetFileInfo(path string) (FileInfo, error) {
 		ty = "file"
 	}
 
-	return FileInfo{
+	return FileStat{
 		Type: ty,
 		Name: fi.Name(),
 	}, nil
 }
 
-func (shareSpace ShareSpace) ListFiles(path string) ([]FileInfo, error) {
+func (shareSpace ShareSpace) ListFiles(path string) ([]FileStat, error) {
 	if path == "" {
-		files := []FileInfo{}
+		files := []FileStat{}
 
 		for name, path := range shareSpace.Config.Files {
 			fi, err := os.Stat(path)
 			if err != nil {
-				return []FileInfo{}, err
+				return []FileStat{}, err
 			}
 
 			var ty string
@@ -105,7 +105,7 @@ func (shareSpace ShareSpace) ListFiles(path string) ([]FileInfo, error) {
 				ty = "file"
 			}
 
-			files = append(files, FileInfo{
+			files = append(files, FileStat{
 				Type: ty,
 				Name: name,
 			})
@@ -116,10 +116,10 @@ func (shareSpace ShareSpace) ListFiles(path string) ([]FileInfo, error) {
 
 	realPath := shareSpace.GetRealPath(path)
 
-	files := []FileInfo{}
+	files := []FileStat{}
 	entries, err := os.ReadDir(realPath)
 	if err != nil {
-		return []FileInfo{}, err
+		return []FileStat{}, err
 	}
 
 	for _, e := range entries {
@@ -130,7 +130,7 @@ func (shareSpace ShareSpace) ListFiles(path string) ([]FileInfo, error) {
 			ty = "file"
 		}
 
-		files = append(files, FileInfo{
+		files = append(files, FileStat{
 			Type: ty,
 			Name: e.Name(),
 		})

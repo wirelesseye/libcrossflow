@@ -1,4 +1,4 @@
-export interface FileInfo {
+export interface FileStat {
     type: string;
     name: string;
 }

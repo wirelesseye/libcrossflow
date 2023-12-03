@@ -3,7 +3,7 @@ import { useFetchJSON } from "../utils/hooks";
 import { BoxIcon } from "lucide-react";
 
 export default function SharespacesPage() {
-    const sharespaces = useFetchJSON<string[]>("/api/sharespaces");
+    const sharespaces = useFetchJSON<string[]>("/api/file/sharespaces");
 
     return (
         <FileList>

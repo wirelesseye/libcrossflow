@@ -1,5 +1,5 @@
 import { useFetchJSON } from "../utils/hooks";
-import { FileInfo } from "../datatypes";
+import { FileStat } from "../datatypes";
 import FilePreview from "../components/FilePreview";
 import FolderView from "../components/FolderView";
 import { ArrowUpFromLineIcon } from "lucide-react";
@@ -15,9 +15,9 @@ interface FilesPageProps {
 
 export default function FilesPage({ params }: FilesPageProps) {
     const { filepath } = params;
-    const fileInfo = useFetchJSON<FileInfo>(`/api/file/${filepath}`);
+    const fileStat = useFetchJSON<FileStat>(`/api/file/stat/${filepath}`);
 
-    return fileInfo ? (
+    return fileStat ? (
         <div>
             <div className={styles.header}>
                 <Link tabIndex={-1} href={path.join("/files", path.parent(filepath))}>
@@ -50,10 +50,10 @@ export default function FilesPage({ params }: FilesPageProps) {
                     ))}
                 </div>
             </div>
-            {fileInfo.type === "dir" || fileInfo.type === "sharespace" ? (
+            {fileStat.type === "dir" || fileStat.type === "sharespace" ? (
                 <FolderView filePath={filepath} />
             ) : (
-                <FilePreview filePath={filepath} fileInfo={fileInfo} />
+                <FilePreview filePath={filepath} fileInfo={fileStat} />
             )}
         </div>
     ) : null;

@@ -1,11 +1,11 @@
 import { css } from "@emotion/css";
 import { FileIcon } from "lucide-react";
-import { FileInfo } from "../datatypes";
+import { FileStat } from "../datatypes";
 import { Button } from "./Button";
 
 interface FilePreviewProps {
     filePath: string;
-    fileInfo: FileInfo;
+    fileInfo: FileStat;
 }
 
 export default function FilePreview({
