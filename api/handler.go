@@ -3,9 +3,14 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"libcrossflow/controllers/sharespace"
+	"log"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -16,6 +21,7 @@ func HandleAPI(r *mux.Router) {
 	r.PathPrefix("/api/file/list/").HandlerFunc(handleFileList)
 	r.PathPrefix("/api/file/stat/").HandlerFunc(handleFileStat)
 	r.PathPrefix("/api/file/download/").HandlerFunc(handleFileDownload)
+	r.HandleFunc("/api/file/upload", handleFileUpload).Methods("POST")
 }
 
 func handleFileShareSpaces(w http.ResponseWriter, r *http.Request) {
@@ -25,12 +31,12 @@ func handleFileShareSpaces(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
-func splitPath(path string) (string, string, error) {
+func splitPath(path string) (sharespace.ShareSpace, string, error) {
 	var shareSpaceName, relPath string
 
 	split := strings.SplitN(path, "/", 2)
 	if len(split) == 0 {
-		return "", "", errors.New("Empty path")
+		return sharespace.ShareSpace{}, "", errors.New("Empty path")
 	} else if len(split) == 1 {
 		shareSpaceName = split[0]
 		relPath = ""
@@ -40,23 +46,21 @@ func splitPath(path string) (string, string, error) {
 
 	unescapedPath, err := url.QueryUnescape(relPath)
 	if err != nil {
-		return "", "", err
-	}
-
-	return shareSpaceName, unescapedPath, nil
-}
-
-func handleFileList(w http.ResponseWriter, r *http.Request) {
-	path, _ := strings.CutPrefix(r.URL.String(), "/api/file/list/")
-	shareSpaceName, relPath, err := splitPath(path)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("400 bad request"))
-		return
+		return sharespace.ShareSpace{}, "", err
 	}
 
 	shareSpace, ok := sharespace.GetShareSpace(shareSpaceName)
 	if !ok {
+		return sharespace.ShareSpace{}, "", fmt.Errorf("Sharespace %s does not exist", shareSpaceName)
+	}
+
+	return shareSpace, unescapedPath, nil
+}
+
+func handleFileList(w http.ResponseWriter, r *http.Request) {
+	path, _ := strings.CutPrefix(r.URL.String(), "/api/file/list/")
+	shareSpace, relPath, err := splitPath(path)
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("400 bad request"))
 		return
@@ -75,27 +79,12 @@ func handleFileList(w http.ResponseWriter, r *http.Request) {
 
 func handleFileDownload(w http.ResponseWriter, r *http.Request) {
 	path, _ := strings.CutPrefix(r.URL.String(), "/api/file/download/")
-	shareSpaceName, relPath, err := splitPath(path)
+	shareSpace, relPath, err := splitPath(path)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("400 bad request"))
 		return
 	}
-
-	shareSpace, ok := sharespace.GetShareSpace(shareSpaceName)
-	if !ok {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("400 bad request"))
-		return
-	}
-
-	unescapedPath, err := url.QueryUnescape(relPath)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("400 bad request"))
-		return
-	}
-	path = unescapedPath
 
 	fileInfo, err := shareSpace.GetFileStat(relPath)
 	if fileInfo.Type == "dir" || err != nil {
@@ -108,29 +97,47 @@ func handleFileDownload(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, realPath)
 }
 
+func handleFileUpload(w http.ResponseWriter, r *http.Request) {
+	file, handler, err := r.FormFile("file")
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("400 bad request"))
+		return
+	}
+	defer file.Close()
+
+	path := r.FormValue("dirpath")
+	shareSpace, relPath, err := splitPath(path)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("400 bad request"))
+		return
+	}
+
+	realPath := shareSpace.GetRealPath(relPath)
+	filename := filepath.Join(realPath, handler.Filename)
+	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	defer f.Close()
+
+	_, err = io.Copy(f, file)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+}
+
 func handleFileStat(w http.ResponseWriter, r *http.Request) {
 	path, _ := strings.CutPrefix(r.URL.String(), "/api/file/stat/")
-	shareSpaceName, relPath, err := splitPath(path)
+	shareSpace, relPath, err := splitPath(path)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("400 bad request"))
 		return
 	}
-
-	shareSpace, ok := sharespace.GetShareSpace(shareSpaceName)
-	if !ok {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("400 bad request"))
-		return
-	}
-
-	unescapedPath, err := url.QueryUnescape(relPath)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("400 bad request"))
-		return
-	}
-	path = unescapedPath
 
 	fileInfo, err := shareSpace.GetFileStat(relPath)
 	if err != nil {
