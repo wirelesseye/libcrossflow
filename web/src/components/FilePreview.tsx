@@ -27,7 +27,7 @@ export default function FilePreview({
                         <div className={styles.filename}>{fileinfo.name}</div>
                         <a
                             className={styles.download}
-                            href={`/api/download/${filepath}`}
+                            href={`/api/file/download/${filepath}`}
                             download=""
                         >
                             <Button>Download</Button>
