@@ -43,29 +43,7 @@ export default function FilesPage({ params }: FilesPageProps) {
     return fileStat ? (
         <div>
             <div className={styles.header}>
-                <div className={styles.path}>
-                    {filepath.split("/").map((name, i) => (
-                        <Fragment key={i}>
-                            {i ? <div className={styles.sep}>/</div> : null}
-                            <Link
-                                tabIndex={-1}
-                                href={path.join(
-                                    "/files",
-                                    ...filepath.split("/").slice(0, i + 1),
-                                )}
-                            >
-                                <Button
-                                    className={
-                                        i === 0 ? styles.sharespace : undefined
-                                    }
-                                    variant="ghost"
-                                >
-                                    {name}
-                                </Button>
-                            </Link>
-                        </Fragment>
-                    ))}
-                </div>
+                <PathBar filepath={filepath} />
                 {fileStat.type === "dir" ? (
                     <Button onClick={handleUpload}>
                         <ArrowUpFromLineIcon size={18} />
@@ -79,6 +57,36 @@ export default function FilesPage({ params }: FilesPageProps) {
             )}
         </div>
     ) : null;
+}
+
+interface PathBarProps {
+    filepath: string;
+}
+
+function PathBar({ filepath }: PathBarProps) {
+    return (
+        <div className={styles.path}>
+            {filepath.split("/").map((name, i) => (
+                <Fragment key={i}>
+                    {i ? <div className={styles.sep}>/</div> : null}
+                    <Link
+                        tabIndex={-1}
+                        href={path.join(
+                            "/files",
+                            ...filepath.split("/").slice(0, i + 1),
+                        )}
+                    >
+                        <Button
+                            className={i === 0 ? styles.sharespace : undefined}
+                            variant="ghost"
+                        >
+                            {name}
+                        </Button>
+                    </Link>
+                </Fragment>
+            ))}
+        </div>
+    );
 }
 
 const styles = {
