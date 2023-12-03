@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"libcrossflow/config"
+	"libcrossflow/util"
 	"log"
 	"net"
 	"net/http"
@@ -21,8 +22,11 @@ func main() {
 	go func() {
 		log.Fatal(http.ListenAndServe(":4331", nil))
 	}()
+
 	localIP := getOutboundIP()
-	log.Printf("Server Started on http://localhost:4331/ or http://%s:4331/", localIP)
+	localAddr := fmt.Sprintf("http://%s:4331/", localIP)
+	log.Printf("Server Started on http://localhost:4331/ or %s", localAddr)
+	util.PrintQRCode(localAddr)
 
 	go func() {
 		handleInput()
