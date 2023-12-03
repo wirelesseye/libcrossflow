@@ -23,13 +23,15 @@ export const usePathname = () => {
 };
 
 export const usePush = () => {
-    const setPathname = useRouterStore((s) => s.setPathname);
+    const {pathname, setPathname} = useRouterStore();
 
     const f = useCallback((url: string) => {
-        setTimeout(() => {
-            setPathname(url);
-            history.pushState({}, "", url);
-        }, 100);
+        if (url !== pathname) {
+            setTimeout(() => {
+                setPathname(url);
+                history.pushState({}, "", url);
+            }, 100);
+        }
     }, []);
 
     return f;
