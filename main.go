@@ -52,8 +52,7 @@ func handleInput() {
 	for {
 		_, err := fmt.Scanln(&input)
 		if err != nil {
-			fmt.Println("Error reading stdin:", err)
-			break
+			continue
 		}
 
 		fmt.Println("Unknown command:", input)
