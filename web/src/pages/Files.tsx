@@ -7,7 +7,7 @@ import { css } from "@emotion/css";
 import { Button } from "../components/Button";
 import path from "../utils/path";
 import { Link } from "../components/Link";
-import { Fragment, useCallback, useMemo } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef } from "react";
 
 interface FilesPageProps {
     params: { filepath: string };
@@ -17,6 +17,11 @@ export default function FilesPage({ params }: FilesPageProps) {
     const { filepath } = params;
     const fileStat = useFetchJSON<FileStat>(`/api/file/stat/${filepath}`);
 
+    const filepathRef = useRef(filepath);
+    useEffect(() => {
+        filepathRef.current = filepath;
+    }, [filepath]);
+
     const onFileSelected = useCallback((e: Event) => {
         const fileInput = e.target as HTMLInputElement;
 
@@ -24,7 +29,7 @@ export default function FilesPage({ params }: FilesPageProps) {
             const file = fileInput.files[0];
             const formData = new FormData();
             formData.append("file", file);
-            formData.append("dirpath", filepath);
+            formData.append("dirpath", filepathRef.current);
             fetch(api("/api/file/upload"), { method: "POST", body: formData });
         }
     }, []);
